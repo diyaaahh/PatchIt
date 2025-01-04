@@ -1,4 +1,4 @@
 flaskbackend/venv/
-flaskbackend/detected_potholes/
+detected_potholes/
 flaskbackend/pothole.pt
 *.dylib

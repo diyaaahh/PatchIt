@@ -1,11 +1,12 @@
 import Dashboard from "../pages/dashboard";
 import { useAuth0 } from "@auth0/auth0-react";
 import PotholeReporter from "./user";
+import LandingPage from "./landingpage";
 
 export default function Homepage() {
     const { user, isAuthenticated } = useAuth0();
     if(!isAuthenticated){
-        return <div>Please log in.</div>;
+        return <LandingPage/>
     }
     const isAdmin  = user.email === "admin@gmail.com";
 

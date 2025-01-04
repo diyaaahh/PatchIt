@@ -81,7 +81,7 @@ const PotholeReporter = () => {
       const response = await fetch(capturedImage);
       const blob = await response.blob();
       const file = new File([blob], 'pothole.jpg', { type: 'image/jpeg' });
-
+      // const file = new File(capturedImage);
       formData.append('image', file);
       formData.append('userId', '6777ea0992f9a82a810af034'); // Replace with actual userId
       formData.append('comment', comment);
@@ -98,7 +98,7 @@ const PotholeReporter = () => {
 
       const data = await res.json();
       if (res.ok) {
-        console.log('Photo uploaded successfully:', data);
+        console.log('Request Successful:', data);
       } else {
         console.error('Error uploading photo:', data);
       }
