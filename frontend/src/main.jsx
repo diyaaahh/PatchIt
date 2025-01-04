@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import { Auth0Provider } from '@auth0/auth0-react'
+import LiveStream from './flaskpages/cameraPage.jsx'
+import Dashboard from './flaskpages/analytics.jsx'
+import PotholeDetectionApp from './flaskpages/cameraPage.jsx'
 
 createRoot(document.getElementById('root')).render(
   <Auth0Provider
@@ -14,6 +17,9 @@ createRoot(document.getElementById('root')).render(
   >
   <StrictMode>
     <App />
+    
+    {/* <PotholeDetectionApp/> */}
+    {/* <Dashboard/> */}
   </StrictMode>
   </Auth0Provider>,
 )

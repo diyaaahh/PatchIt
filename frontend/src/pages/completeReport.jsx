@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import PotholeDescriptionCard from '../components/completeReport';
+import CompletedReport from '../components/completeReport';
 
 // Helper function to calculate time difference
 const timeDifference = (startTime, endTime) => {
@@ -89,7 +89,7 @@ export default function CompletedPothole() {
             : 'Duration not available';
 
           return (
-            <PotholeDescriptionCard
+            <CompletedReport
               key={pothole._id}
               description={pothole.comment}
               priority={pothole.severity}

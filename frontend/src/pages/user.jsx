@@ -5,6 +5,8 @@ import potholesImage from '../assets/pothole.png';
 import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import LogoutButton from '../components/logoutButton';
+import { ToastContainer, toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const PotholeReporter = () => {
   const { user, isAuthenticated } = useAuth0();
@@ -18,6 +20,7 @@ const PotholeReporter = () => {
     name: 'xyz',
     profilePicture: potholesImage,
   });
+  const navigate = useNavigate();
 
   const webcamRef = useRef(null);
 
@@ -81,7 +84,7 @@ const PotholeReporter = () => {
       const response = await fetch(capturedImage);
       const blob = await response.blob();
       const file = new File([blob], 'pothole.jpg', { type: 'image/jpeg' });
-
+      // const file = new File(capturedImage);
       formData.append('image', file);
       formData.append('userId', '6777ea0992f9a82a810af034'); // Replace with actual userId
       formData.append('comment', comment);
@@ -98,9 +101,25 @@ const PotholeReporter = () => {
 
       const data = await res.json();
       if (res.ok) {
-        console.log('Photo uploaded successfully:', data);
+        toast.success('Your response has been submitted successfully!', {
+          onOpen: () => {
+            // Wait for 1.5 seconds to show the toast before navigating
+            setTimeout(() => {
+              // Reset form
+              setCapturedImage(null);
+              setComment('');
+              setLocation(null);
+              setFormattedAddress('');
+              navigate('/reports');
+            }, 1500);
+          
+          }
+        });
+        console.log('Request Successful:', data);
       } else {
         console.error('Error uploading photo:', data);
+      toast.error('error submitting response');
+
       }
     } catch (error) {
       console.error('Error during image upload:', error);
@@ -120,11 +139,13 @@ const PotholeReporter = () => {
         <div className="flex items-center gap-4">
           <img
             src={user.picture}
+            
             alt={userDetail.name}
             className="w-10 h-10 rounded-full"
           />
+          
           <span className="text-lg font-semibold">Welcome, {user.name}</span>
-          <span><LogoutButton /></span>
+          <span><LogoutButton/></span>
         </div>
         <div className="mt-4 bg-white p-6 rounded-xl shadow-lg">
           <h1 className="text-3xl font-bold text-blue-600">Pothole Reporter</h1>
@@ -220,12 +241,14 @@ const PotholeReporter = () => {
               type="submit"
               disabled={!capturedImage || !comment || !location}
               className="w-full py-3 bg-purple-600 text-white rounded-lg disabled:opacity-50"
+              onClick={handleSubmit}
             >
               Submit Report
             </button>
           </form>
         </div>
       </main>
+      <ToastContainer />
     </div>
   );
 };
