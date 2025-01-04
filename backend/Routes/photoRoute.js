@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const { getAllPhotos,getPriorityScore, getPendingReports, getResolvedReports} = require("../Controllers/photoController");
 
-const  { getAllPhotos,getPriorityScore} = require("../Controllers/photoController");
 
 const multer = require("multer");
 const photoModel = require("../Models/photo");
@@ -65,5 +65,7 @@ router.post('/upload-photo', upload.single('image'), async (req, res) => {
 });
 
 router.post('/priority-score', getPriorityScore);
+router.get('/reported', getPendingReports);
+router.get('/resolved', getResolvedReports);
 
 module.exports = router;

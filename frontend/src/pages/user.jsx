@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Upload, X, RefreshCw, MapPin } from 'lucide-react';
 import Webcam from 'react-webcam';
 import potholesImage from '../assets/pothole.png';
+import getLocation from '../components/locationdecode';
 import axios from 'axios';
 
 const PotholeReporter = () => {
@@ -20,40 +21,7 @@ const PotholeReporter = () => {
 
   // Get user location and address using OpenCage API
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-
-          setLocation({ latitude: lat, longitude: lng });
-          setLocationError('');
-
-          // Fetch address using OpenCage API
-          const apiKey = 'e16d386bc84948ff9852f8fbf4bd67db';
-          const url = `https://api.opencagedata.com/geocode/v1/json?q=${lat}+${lng}&key=${apiKey}`;
-
-          fetch(url)
-            .then((response) => response.json())
-            .then((data) => {
-              const address = data.results?.[0]?.formatted || 'Address not found';
-              setFormattedAddress(address);
-            })
-            .catch(() => {
-              setFormattedAddress('Failed to fetch address');
-            });
-        },
-        (error) => {
-          const errorMessage =
-            error.code === 1
-              ? 'Location access denied. Enable location services.'
-              : 'Unable to retrieve location.';
-          setLocationError(errorMessage);
-        }
-      );
-    } else {
-      setLocationError('Geolocation is not supported by your browser.');
-    }
+    getLocation(setLocation, setLocationError, setFormattedAddress);
   }, []);
 
   const handleCapture = async () => {
@@ -82,8 +50,8 @@ const PotholeReporter = () => {
       formData.append('image', file);
       formData.append('userId', '6777ea0992f9a82a810af034'); // Replace with actual userId
       formData.append('comment', comment);
-      formData.append('latitude', location.latitude);
       formData.append('longitude', location.longitude);
+      formData.append('latitude', location.latitude);
 
       const res = await fetch('http://localhost:3000/photo/upload-photo', {
         method: 'POST',
