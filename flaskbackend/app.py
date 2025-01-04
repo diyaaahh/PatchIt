@@ -63,7 +63,7 @@ from datetime import datetime
 app = Flask(__name__)
 CORS(app ,resources={r"/*": {"origins": "*"}})
 
-# Load the YOLO model
+# Load the YOLO model 
 model = YOLO("pothole.pt")  # Replace with the correct model path
 
 SAVE_DIR = "detected_potholes"
