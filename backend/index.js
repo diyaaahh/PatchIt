@@ -1,6 +1,7 @@
 const express = require('express');
 const connectToDatabase = require('./mongodb_connect');
 const user = require('./Models/user')
+const multer = require('multer');
 const cors = require("cors")
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
@@ -10,6 +11,7 @@ app.use(cookieParser());
 const port = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/assets', express.static('assets'));
 
 app.use(
     session({
@@ -46,8 +48,10 @@ let db;
     }
 })();
 
+
+
 const userRoutes= require('./Routes/userRoute')
-const photoRoutes=require('./Routes/photoRoute')
+const photoRoutes= require('./Routes/photoRoute')
 
 app.use("/user", userRoutes)
 app.use("/photo", photoRoutes)
