@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const userModel = require("../Models/user")
 
+
 const handleUserLogin = async (req, res) => {
     try {
         const { userId, email, name } = req.body; // Expecting data from Auth0 in the request body
