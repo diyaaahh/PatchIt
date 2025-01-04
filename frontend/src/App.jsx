@@ -1,25 +1,20 @@
 import { useAuth0 } from "@auth0/auth0-react"
 import LoginButton from "./components/loginButton"
 import LogoutButton from "./components/logoutButton";
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Profile from "./components/profile";
+import Homepage from "./pages/dashboard";
 
 function App() {
-  const { user, isAuthenticated, isLoading } = useAuth0();
-
-  if (isLoading) {
-    return <div>Loading ...</div>;
-  }
 
   return (
     <>
-      {isAuthenticated ?
-        <div>
-          <img src={user.picture} alt={user.name} />
-          <h2>{user.name}</h2>
-          <p>{user.email}</p>
-          <p>{user.sub}</p>
-          <LogoutButton/>
-        </div> :
-        <LoginButton />}
+      <Router>
+        <Routes>
+          <Route path= "/"  element={<Homepage/>}/>
+          <Route path='/login' element={<Profile/>}/>
+        </Routes>
+      </Router>
     </>
   );
 
