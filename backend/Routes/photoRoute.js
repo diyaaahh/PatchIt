@@ -1,10 +1,8 @@
 const express = require("express");
 const router = express.Router();
-
-const { addPhoto , getAllPhotos,getPriorityScore, getPendingReports, getResolvedReports} = require("../Controllers/photoController");
+const { addPhoto , getAllPhotos,getPriorityScore, getPendingReports, getResolvedReports, updateToInProgress, updateToResolved} = require("../Controllers/photoController");
 const {calculateDistance} = require('../Utils/helper.js')
 
-const {getAllPhotos,getPriorityScore, getPendingReports, getResolvedReports} = require("../Controllers/photoController");
 
 const multer = require("multer");
 const photoModel = require("../Models/photo");
@@ -61,6 +59,7 @@ router.post('/upload-photo', upload.single('image'), async (req, res) => {
                 // Increment the no_of_reports and update the timestamp
                 photo.no_of_reports += 1;
                 photo.timeStamp.push(new Date());
+                await photo.save();
                 
 
                 return res.status(200).json({
@@ -105,5 +104,6 @@ router.post('/upload-photo', upload.single('image'), async (req, res) => {
 router.post('/priority-score', getPriorityScore);
 router.get('/reported', getPendingReports);
 router.get('/resolved', getResolvedReports);
-
+router.post('/in-progress', updateToInProgress);
+router.post('/updatetoresolved', updateToResolved);
 module.exports = router;
