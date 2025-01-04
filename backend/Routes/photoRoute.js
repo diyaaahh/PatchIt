@@ -1,13 +1,11 @@
 const express = require("express");
 const router = express.Router();
-
-const {getAllPhotos,getPriorityScore, getPendingReports, getResolvedReports, updateToInProgress, updateToResolved} = require("../Controllers/photoController");
-const {calculateDistance} = require('../Utils/helper.js')
-
 const multer = require("multer");
 const path = require('path');
 const fs = require('fs');
 const photoModel = require("../Models/photo");
+const {calculateDistance} = require('../Utils/helper.js');
+const {getAllPhotos, getPriorityScore, getPendingReports, getResolvedReports} = require("../Controllers/photoController");
 
 router.get('/findall', getAllPhotos);
 
@@ -18,7 +16,7 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
         const fileExtension = path.extname(file.originalname);
-        const fileName = `${Date.now()}${fileExtension}`;
+        const fileName =`${Date.now()}${fileExtension}`;
         cb(null, fileName);
     },
 });
@@ -26,18 +24,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.post('/upload-photo', upload.single('image'), async (req, res) => {
-  try {
-    const { userId, comment, latitude, longitude } = req.body;
-
-   
-    if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded.' });
-      }
-          const photoUrl = `/assets/${req.file.filename}`; // Relat
-    // Validate required fields
-    if (!userId || !latitude || !longitude) {
-        return res.status(400).json({ error: 'userId, latitude, and longitude are required.' });
-    }
     try {
         const { userId, comment, latitude, longitude } = req.body;
 
@@ -69,34 +55,8 @@ router.post('/upload-photo', upload.single('image'), async (req, res) => {
                 throw new Error(`Python server responded with status: ${response.status}`);
             }
 
-
             const data = await response.json();
             console.log(data);
-    const newLatitude = parseFloat(latitude);
-    const newLongitude = parseFloat(longitude);
-
-    const existingPhotos = await photoModel.find();
-
-    for (const photo of existingPhotos) {
-        const distance = calculateDistance(
-            newLatitude,
-            newLongitude,
-            parseFloat(photo.latitude),
-            parseFloat(photo.longitude)
-        );
-
-
-
-    const severityScore = getPriorityScore(req.body);
-    photo.severity
-
-        if (distance <= 15) {
-            if (photo.status === 'reported') {
-                // Increment the no_of_reports and update the timestamp
-                photo.no_of_reports += 1;
-                photo.timeStamp.push(new Date());
-                await photo.save();
-                
 
             // If no pothole detected, delete the uploaded image and return early
             if (!data.pothole_detected) {
@@ -205,6 +165,5 @@ router.post('/upload-photo', upload.single('image'), async (req, res) => {
 router.post('/priority-score', getPriorityScore);
 router.get('/reported', getPendingReports);
 router.get('/resolved', getResolvedReports);
-router.post('/in-progress', updateToInProgress);
-router.post('/updatetoresolved', updateToResolved);
+
 module.exports = router;
