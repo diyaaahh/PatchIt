@@ -188,3 +188,4 @@ const getPriorityScore = async (req, res) => {
 
 
 module.exports = {getAllPhotos, getPriorityScore, getPendingReports, getResolvedReports};
+
