@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import PotholeDescriptionCard from '../components/ReportedReport';
+import InProgressReportCard from '../components/InProgress';
 
-export default function ReportedPothole() {
+
+
+export default function CompletedPothole() {
   const [potholes, setPotholes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,34 +27,46 @@ export default function ReportedPothole() {
   };
 
   useEffect(() => {
-    // Make an API call to fetch the reported potholes
-    axios.get('http://localhost:3000/photo/reported')
-      .then(async (response) => {
-        console.log(response.data);
-        if (response.data.reports) {
-          const potholesWithLocation = await Promise.all(
-            response.data.reports.map(async (pothole) => {
-              // Fetch the address for each pothole based on latitude and longitude
-              const address = await fetchAddress(pothole.latitude, pothole.longitude);
-              return { ...pothole, address };  // Add the fetched address to pothole data
-            })
-          );
-          setPotholes(potholesWithLocation);
-        } else {
+    const fetchPotholes = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/photo/getInProgress');
+        
+        if (!response.data.reports) {
           setError('No reports found');
+          return;
         }
-      })
-      .catch((error) => {
+
+        const potholesWithLocation = await Promise.all(
+          response.data.reports.map(async (pothole) => {
+            // Add validation for latitude and longitude
+            if (!pothole.latitude || !pothole.longitude) {
+              console.warn('Missing coordinates for pothole:', pothole._id);
+              return { ...pothole, address: 'Invalid coordinates' };
+            }
+
+            const address = await fetchAddress(pothole.latitude, pothole.longitude);
+            return { ...pothole, address };
+          })
+        );
+
+        setPotholes(potholesWithLocation);
+      } catch (error) {
         console.error('Error fetching potholes:', error);
         setError('Failed to fetch potholes. Please try again later.');
-      })
-      .finally(() => {
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchPotholes();
   }, []);
 
   if (loading) {
-    return <p>Loading potholes...</p>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-lg">Loading potholes...</p>
+      </div>
+    );
   }
 
   return (
@@ -61,7 +75,7 @@ export default function ReportedPothole() {
         <p className="text-red-500">{error}</p>
       ) : potholes.length > 0 ? (
         potholes.map((pothole) => (
-          <PotholeDescriptionCard
+          <InProgressReportCard
             key={pothole.userId}
             description={pothole.comment}
             priority={pothole.severity}

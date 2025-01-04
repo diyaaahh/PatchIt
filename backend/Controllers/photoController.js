@@ -6,7 +6,6 @@ const photoModel = require("../Models/photo");
 const weights = require("../Constants/constants");
 const axios = require("axios");
 
-
 const {calculatePriorityScore,normalizeScore,calculateDistance} = require('../Utils/helper');
 
 
@@ -37,14 +36,12 @@ const getPendingReports = async(req, res) =>{
     try {
         // Fetch all reports with status "pending"
         const pendingReports = await photoModel.find({ status: "reported" });
-        console.log(pendingReports)
+
         if (pendingReports.length === 0) {
             return res.status(404).json({
                 message: "No pending reports found.",
             });
         }
-
-        
 
         // Return the pending reports
         res.status(200).json({
@@ -85,7 +82,31 @@ const getResolvedReports = async(req,res) =>{
     }
 }
 
-module.exports =    getAllPhotos;
+const getInProgressReports = async(req,res) =>{
+    try {
+        // Fetch all reports with status "pending"
+        const pendingReports = await photoModel.find({ status: "in-progress" });
+
+        if (pendingReports.length === 0) {
+            return res.status(404).json({
+                message: "No in-progress reports found.",
+            });
+        }
+
+        // Return the pending reports
+        res.status(200).json({
+            message: "In progress reports retrieved successfully.",
+            reports: pendingReports,
+        });
+    } catch (error) {
+        console.error("Error fetching in-progress reports:", error);
+        res.status(500).json({
+            error: "Internal server error.",
+            details: error.message,
+        });
+    }
+}
+
 
 const fetchOverpassData = async (query) => {
     try {
@@ -183,11 +204,98 @@ const getPriorityScore = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to fetch data or calculate score' });
-    }
+    };
 
-
-
+    
 };
+const updateToInProgress = async (req, res) => {
+    try {
+      const {_id } = req.body; // Extract ID from the request body
+        console.log("the id found is", _id)
+      // Find the photo by ID and update the status to 'in-progress'
+      const updatedPhoto = await photoModel.findByIdAndUpdate(
+        _id,
+        { status: "in-progress" ,
+        $push: { timeStamp: new Date() },},
+         // Hardcoded status update
+        { new: true } // Return the updated document
+      );
+  
+      if (!updatedPhoto) {
+        return res.status(404).json({ error: "Photo not found." });
+      }
+  
+      res.status(200).json({
+        message: "Photo status updated successfully.",
+        photo: updatedPhoto,
+      });
+    } catch (error) {
+      console.error("Error updating photo status:", error);
+      res.status(500).json({ error: "Internal server error." });
+    }
+  };
+
+  const updateToResolved = async (req, res) => {
+    try {
+      const {_id } = req.body; // Extract ID from the request body
+        console.log("the id found is", _id)
+      // Find the photo by ID and update the status to 'in-progress'
+      const updatedPhoto = await photoModel.findByIdAndUpdate(
+        _id,
+        { status: "resolved" ,
+        $push: { timeStamp: new Date() }}, // Hardcoded status update
+        { new: true } // Return the updated document
+      );
+  
+      if (!updatedPhoto) {
+        return res.status(404).json({ error: "Photo not found." });
+      }
+  
+      res.status(200).json({
+        message: "Photo status updated successfully.",
+        photo: updatedPhoto,
+      });
+    } catch (error) {
+      console.error("Error updating photo status:", error);
+      res.status(500).json({ error: "Internal server error." });
+    }
+  };
+
+  
+  // Function to fetch address using OpenCage API
+const getAddressFromCoordinates = async (latitude, longitude) => {
+    const apiKey = 'e16d386bc84948ff9852f8fbf4bd67db';
+    const url = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}`;
+  
+    try {
+      const response = await axios.get(url);
+      const address = response.data.results?.[0]?.formatted || 'Address not found';
+      return address;
+    } catch (error) {
+      console.error('Error fetching address:', error);
+      return 'Address not found';
+    }
+  };
+  
+  // Controller function to handle address retrieval
+  const getAddress = async (req, res) => {
+    const { latitude, longitude } = req.query;
+  
+    if (!latitude || !longitude) {
+      return res.status(400).json({ error: 'Latitude and Longitude are required' });
+    }
+    console.log(latitude, longitude);
+  
+    try {
+      const address = await getAddressFromCoordinates(latitude, longitude);
+      console.log('Address lookup result:', { latitude, longitude, address });
+      res.json({ address });
+    } catch (error) {
+      console.error('Error in getAddress:', error);
+      res.status(500).json({ error: 'Failed to fetch address', details: error.message });
+    }
+  };
+  
 
 
-module.exports = {   getAllPhotos, getPriorityScore, getPendingReports, getResolvedReports};
+module.exports = { getAllPhotos, getPriorityScore, getPendingReports, getResolvedReports,getInProgressReports, updateToInProgress, updateToResolved, getAddress};

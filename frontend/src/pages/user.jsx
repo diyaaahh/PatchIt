@@ -2,26 +2,61 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Upload, X, RefreshCw, MapPin } from 'lucide-react';
 import Webcam from 'react-webcam';
 import potholesImage from '../assets/pothole.png';
-import getLocation from '../components/locationdecode';
 import axios from 'axios';
+import { useAuth0 } from '@auth0/auth0-react';
+import LogoutButton from '../components/logoutButton';
 
 const PotholeReporter = () => {
+  const { user, isAuthenticated } = useAuth0();
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const [comment, setComment] = useState('');
   const [location, setLocation] = useState(null);
   const [formattedAddress, setFormattedAddress] = useState('');
   const [locationError, setLocationError] = useState('');
-  const [user, setUser] = useState({
+  const [userDetail, setUserDetail] = useState({
     name: 'xyz',
     profilePicture: potholesImage,
   });
 
   const webcamRef = useRef(null);
 
-  // Get user location and address using OpenCage API
+  // Get userDetail location and address using OpenCage API
   useEffect(() => {
-    getLocation(setLocation, setLocationError, setFormattedAddress);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          setLocation({ latitude: lat, longitude: lng });
+          setLocationError('');
+
+          // Fetch address using OpenCage API
+          const apiKey = 'e16d386bc84948ff9852f8fbf4bd67db';
+          const url = `https://api.opencagedata.com/geocode/v1/json?q=${lat}+${lng}&key=${apiKey}`;
+
+          fetch(url)
+            .then((response) => response.json())
+            .then((data) => {
+              const address = data.results?.[0]?.formatted || 'Address not found';
+              setFormattedAddress(address);
+            })
+            .catch(() => {
+              setFormattedAddress('Failed to fetch address');
+            });
+        },
+        (error) => {
+          const errorMessage =
+            error.code === 1
+              ? 'Location access denied. Enable location services.'
+              : 'Unable to retrieve location.';
+          setLocationError(errorMessage);
+        }
+      );
+    } else {
+      setLocationError('Geolocation is not supported by your browser.');
+    }
   }, []);
 
   const handleCapture = async () => {
@@ -50,8 +85,8 @@ const PotholeReporter = () => {
       formData.append('image', file);
       formData.append('userId', '6777ea0992f9a82a810af034'); // Replace with actual userId
       formData.append('comment', comment);
-      formData.append('longitude', location.longitude);
       formData.append('latitude', location.latitude);
+      formData.append('longitude', location.longitude);
 
       const res = await fetch('http://localhost:3000/photo/upload-photo', {
         method: 'POST',
@@ -79,16 +114,17 @@ const PotholeReporter = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6 overflow-y-auto">
       {/* Header */}
       <header className="max-w-4xl mx-auto mb-8">
         <div className="flex items-center gap-4">
           <img
-            src={user.profilePicture}
-            alt={user.name}
+            src={user.picture}
+            alt={userDetail.name}
             className="w-10 h-10 rounded-full"
           />
           <span className="text-lg font-semibold">Welcome, {user.name}</span>
+          <span><LogoutButton /></span>
         </div>
         <div className="mt-4 bg-white p-6 rounded-xl shadow-lg">
           <h1 className="text-3xl font-bold text-blue-600">Pothole Reporter</h1>

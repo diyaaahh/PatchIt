@@ -30,7 +30,7 @@ const photoSchema = new mongoose.Schema(
         },
         timeStamp:{
             type: [Date],
-            default:null
+            default:[]
         },
         no_of_reports:{
             type: Number,

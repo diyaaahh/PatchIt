@@ -1,10 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { getAllPhotos,getPriorityScore, getPendingReports, getResolvedReports} = require("../Controllers/photoController");
+
+const { addPhoto , getAllPhotos,getPriorityScore, getPendingReports, getResolvedReports, updateToInProgress, updateToResolved, getPlaceName, getAddress, getInProgressReports} = require("../Controllers/photoController");
+const {calculateDistance} = require('../Utils/helper.js')
 
 
 const multer = require("multer");
 const photoModel = require("../Models/photo");
+
 
 // Route to add a photo
 router.get('/findall', getAllPhotos)
@@ -18,6 +21,7 @@ const storage = multer.diskStorage({
     filename: function (req, file, cb) {
       const fileExtension = path.extname(file.originalname);
       const fileName = `${Date.now()}${fileExtension}`;
+
       cb(null, fileName); // Create a unique filename
     },
   });
@@ -28,16 +32,48 @@ const storage = multer.diskStorage({
 router.post('/upload-photo', upload.single('image'), async (req, res) => {
   try {
     const { userId, comment, latitude, longitude } = req.body;
-    const photoUrl = `/assets/${req.file.filename}`; // Relative URL to the image
+   
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded.' });
       }
-      
+          const photoUrl = `/assets/${req.file.filename}`; // Relat
     // Validate required fields
-    if (!userId || !photoUrl) {
-      return res.status(400).json({ error: 'userId and photoUrl are required.' });
+    if (!userId || !latitude || !longitude) {
+        return res.status(400).json({ error: 'userId, latitude, and longitude are required.' });
     }
 
+    const newLatitude = parseFloat(latitude);
+    const newLongitude = parseFloat(longitude);
+
+    const existingPhotos = await photoModel.find();
+
+    for (const photo of existingPhotos) {
+        const distance = calculateDistance(
+            newLatitude,
+            newLongitude,
+            parseFloat(photo.latitude),
+            parseFloat(photo.longitude)
+        );
+
+        if (distance <= 15) {
+            if (photo.status === 'reported') {
+                // Increment the no_of_reports and update the timestamp
+                photo.no_of_reports += 1;
+                photo.timeStamp.push(new Date());
+                await photo.save();
+                
+
+                return res.status(200).json({
+                    message: 'Nearby reported photo found. Number of reports incremented.',
+                    photo,
+                });
+            } else if (photo.status === 'in-progress' || photo.status === 'resolved') {
+                
+                // Allow the new photo to be saved
+                break;
+            }
+        }
+    }
     // Create a new photo document
     const newPhoto = new photoModel({
       userId,
@@ -45,6 +81,8 @@ router.post('/upload-photo', upload.single('image'), async (req, res) => {
       comment: comment || '',
       latitude: latitude || '',
       longitude: longitude || '',
+      timeStamp: [new Date()],
+      no_of_reports: 1,
     });
 
     // Save the photo document to the database
@@ -67,5 +105,8 @@ router.post('/upload-photo', upload.single('image'), async (req, res) => {
 router.post('/priority-score', getPriorityScore);
 router.get('/reported', getPendingReports);
 router.get('/resolved', getResolvedReports);
-
+router.get('/getInProgress', getInProgressReports);
+router.post('/in-progress', updateToInProgress);
+router.post('/updatetoresolved', updateToResolved);
+router.get('/getAddress', getAddress);
 module.exports = router;
