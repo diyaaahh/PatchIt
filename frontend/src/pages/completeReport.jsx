@@ -80,6 +80,7 @@ export default function CompletedPothole() {
 
   return (
     <div className="space-y-4 p-4">
+      <h1 className='text-3xl text-gray-600 font-bold pb-4'>Completed Potholes Report</h1>
       {error ? (
         <p className="text-red-500 text-center">{error}</p>
       ) : potholes.length > 0 ? (
