@@ -191,7 +191,9 @@ const updateToInProgress = async (req, res) => {
       // Find the photo by ID and update the status to 'in-progress'
       const updatedPhoto = await photoModel.findByIdAndUpdate(
         _id,
-        { status: "in-progress" }, // Hardcoded status update
+        { status: "in-progress" ,
+        $push: { timeStamp: new Date() },},
+         // Hardcoded status update
         { new: true } // Return the updated document
       );
   
@@ -216,7 +218,8 @@ const updateToInProgress = async (req, res) => {
       // Find the photo by ID and update the status to 'in-progress'
       const updatedPhoto = await photoModel.findByIdAndUpdate(
         _id,
-        { status: "resolved" }, // Hardcoded status update
+        { status: "resolved" ,
+        $push: { timeStamp: new Date() }}, // Hardcoded status update
         { new: true } // Return the updated document
       );
   
