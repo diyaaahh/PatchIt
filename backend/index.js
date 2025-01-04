@@ -1,8 +1,38 @@
 const express = require('express');
 const connectToDatabase = require('./mongodb_connect');
+const user = require('./Models/user')
+const cors = require("cors")
+const session = require("express-session");
+const cookieParser = require("cookie-parser");
 
 const app = express();
+app.use(cookieParser());
 const port = 3000;
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(
+    session({
+        secret: "dsakdbdbaszj",
+        resave: false,
+        saveUninitialized: true, // Add this line to ensure uninitialized sessions are saved
+        cookie: {
+            secure: false, 
+            httpOnly: true,
+            maxAge: 24 * 60 * 60 * 1000,
+            sameSite: 'Lax',
+        },
+    })
+);
+
+
+app.use(
+    cors({
+      origin: "http://localhost:5173", //frontend url
+      credentials: true,
+    })
+  );
+
 
 let db;
 
@@ -10,28 +40,18 @@ let db;
 (async () => {
     try {
         db = await connectToDatabase();
+        console.log('MongoDB connected succesfully!')
     } catch (error) {
         console.error("Failed to initialize MongoDB connection:", error);
     }
 })();
 
-// Test connectivity route
-app.get('/test-connection', async (req, res) => {
-    if (!db) {
-        return res.status(500).send("Database connection not established.");
-    }
-    try {
-        const collection = db.collection("myCollection"); // Replace "myCollection" with your collection name
+const userRoutes= require('./Routes/userRoute')
+const photoRoutes=require('./Routes/photoRoute')
 
-        // Example: Test inserting a document
-        await collection.insertOne({ test: "Connectivity Test", timestamp: new Date() });
+app.use("/user", userRoutes)
+app.use("/photo", photoRoutes)
 
-        res.status(200).send("Connected to MongoDB Atlas successfully!");
-    } catch (error) {
-        console.error("Error during connectivity test:", error);
-        res.status(500).send("Failed to connect to MongoDB Atlas.");
-    }
-});
 
 // Start the server
 app.listen(port, () => {
