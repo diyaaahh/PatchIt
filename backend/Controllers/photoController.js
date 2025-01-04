@@ -181,11 +181,59 @@ const getPriorityScore = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to fetch data or calculate score' });
-    }
+    };
 
-
-
+    
 };
+const updateToInProgress = async (req, res) => {
+    try {
+      const {_id } = req.body; // Extract ID from the request body
+        console.log("the id found is", _id)
+      // Find the photo by ID and update the status to 'in-progress'
+      const updatedPhoto = await photoModel.findByIdAndUpdate(
+        _id,
+        { status: "in-progress" }, // Hardcoded status update
+        { new: true } // Return the updated document
+      );
+  
+      if (!updatedPhoto) {
+        return res.status(404).json({ error: "Photo not found." });
+      }
+  
+      res.status(200).json({
+        message: "Photo status updated successfully.",
+        photo: updatedPhoto,
+      });
+    } catch (error) {
+      console.error("Error updating photo status:", error);
+      res.status(500).json({ error: "Internal server error." });
+    }
+  };
+
+  const updateToResolved = async (req, res) => {
+    try {
+      const {_id } = req.body; // Extract ID from the request body
+        console.log("the id found is", _id)
+      // Find the photo by ID and update the status to 'in-progress'
+      const updatedPhoto = await photoModel.findByIdAndUpdate(
+        _id,
+        { status: "resolved" }, // Hardcoded status update
+        { new: true } // Return the updated document
+      );
+  
+      if (!updatedPhoto) {
+        return res.status(404).json({ error: "Photo not found." });
+      }
+  
+      res.status(200).json({
+        message: "Photo status updated successfully.",
+        photo: updatedPhoto,
+      });
+    } catch (error) {
+      console.error("Error updating photo status:", error);
+      res.status(500).json({ error: "Internal server error." });
+    }
+  };
 
 
-module.exports = { getAllPhotos, getPriorityScore, getPendingReports, getResolvedReports};
+module.exports = { getAllPhotos, getPriorityScore, getPendingReports, getResolvedReports, updateToInProgress, updateToResolved};
