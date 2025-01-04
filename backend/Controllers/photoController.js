@@ -6,7 +6,6 @@ const photoModel = require("../Models/photo");
 const weights = require("../Constants/constants");
 const axios = require("axios");
 
-
 const {calculatePriorityScore,normalizeScore,calculateDistance} = require('../Utils/helper');
 
 
@@ -188,4 +187,5 @@ const getPriorityScore = async (req, res) => {
 };
 
 
-module.exports = { getAllPhotos, getPriorityScore, getPendingReports, getResolvedReports};
+module.exports = {getAllPhotos, getPriorityScore, getPendingReports, getResolvedReports};
+

@@ -3,22 +3,25 @@ import { Camera, Upload, X, RefreshCw, MapPin } from 'lucide-react';
 import Webcam from 'react-webcam';
 import potholesImage from '../assets/pothole.png';
 import axios from 'axios';
+import { useAuth0 } from '@auth0/auth0-react';
+import LogoutButton from '../components/logoutButton';
 
 const PotholeReporter = () => {
+  const {user,isAuthenticated} = useAuth0()
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const [comment, setComment] = useState('');
   const [location, setLocation] = useState(null);
   const [formattedAddress, setFormattedAddress] = useState('');
   const [locationError, setLocationError] = useState('');
-  const [user, setUser] = useState({
+  const [userDetail, setUserDetail] = useState({
     name: 'xyz',
     profilePicture: potholesImage,
   });
 
   const webcamRef = useRef(null);
 
-  // Get user location and address using OpenCage API
+  // Get userDetail location and address using OpenCage API
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -116,11 +119,12 @@ const PotholeReporter = () => {
       <header className="max-w-4xl mx-auto mb-8">
         <div className="flex items-center gap-4">
           <img
-            src={user.profilePicture}
-            alt={user.name}
+            src={userDetail.profilePicture}
+            alt={userDetail.name}
             className="w-10 h-10 rounded-full"
           />
-          <span className="text-lg font-semibold">Welcome, {user.name}</span>
+          <span className="text-lg font-semibold">Welcome, {user.email}</span>
+          <span><LogoutButton/></span>
         </div>
         <div className="mt-4 bg-white p-6 rounded-xl shadow-lg">
           <h1 className="text-3xl font-bold text-blue-600">Pothole Reporter</h1>
