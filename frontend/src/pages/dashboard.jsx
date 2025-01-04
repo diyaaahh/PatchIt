@@ -13,7 +13,7 @@ export default function Dashboard() {
           <Sidebar />
         </div>
         
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto ml-10 mr-10 m-5">
           <ReportedPothole />
         </div>
       </div>
