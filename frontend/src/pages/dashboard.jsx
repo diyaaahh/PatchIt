@@ -4,6 +4,8 @@ import LogoutButton from '../components/logoutButton'
 import LoginButton from '../components/loginButton'
 import Sidebar from '../components/sideBar'
 import ReportedPothole from './reportedPothole'
+import Analytics from '../flaskpages/analytics'
+
 
 export default function Dashboard() {
   return (
@@ -14,7 +16,8 @@ export default function Dashboard() {
         </div>
         
         <div className="flex-1 overflow-y-auto ml-10 mr-10 m-5">
-          <ReportedPothole />
+          {/* <ReportedPothole /> */}
+          <Analytics/>
         </div>
       </div>
     </div>
