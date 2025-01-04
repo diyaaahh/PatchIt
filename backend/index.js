@@ -3,36 +3,28 @@ const connectToDatabase = require('./mongodb_connect');
 const user = require('./Models/user')
 const cors = require("cors")
 const session = require("express-session");
-const cookieParser = require("cookie-parser");
+
 
 const app = express();
-app.use(cookieParser());
 const port = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-    session({
-        secret: "dsakdbdbaszj",
-        resave: false,
-        saveUninitialized: true, // Add this line to ensure uninitialized sessions are saved
-        cookie: {
-            secure: false, 
-            httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000,
-            sameSite: 'Lax',
-        },
-    })
-);
+
 
 
 app.use(
     cors({
-      origin: "http://localhost:5173", //frontend url
-      credentials: true,
+        origin: "http://localhost:5173", //frontend url
+        credentials: true,
     })
-  );
-
+    );
+    
+    app.use(session({
+        secret: 'your-secret-key', // Replace with a strong secret
+        resave: false,
+        saveUninitialized: true,
+    }));
 
 let db;
 
