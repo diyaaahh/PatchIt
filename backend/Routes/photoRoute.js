@@ -31,6 +31,7 @@ const storage = multer.diskStorage({
 router.post('/upload-photo', upload.single('image'), async (req, res) => {
   try {
     const { userId, comment, latitude, longitude } = req.body;
+
    
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded.' });
@@ -53,6 +54,7 @@ router.post('/upload-photo', upload.single('image'), async (req, res) => {
             parseFloat(photo.latitude),
             parseFloat(photo.longitude)
         );
+
 
         if (distance <= 15) {
             if (photo.status === 'reported') {

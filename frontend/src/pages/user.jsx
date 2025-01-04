@@ -119,11 +119,11 @@ const PotholeReporter = () => {
       <header className="max-w-4xl mx-auto mb-8">
         <div className="flex items-center gap-4">
           <img
-            src={userDetail.profilePicture}
+            src={user.picture}
             alt={userDetail.name}
             className="w-10 h-10 rounded-full"
           />
-          <span className="text-lg font-semibold">Welcome, {user.email}</span>
+          <span className="text-lg font-semibold">Welcome, {user.name}</span>
           <span><LogoutButton/></span>
         </div>
         <div className="mt-4 bg-white p-6 rounded-xl shadow-lg">
