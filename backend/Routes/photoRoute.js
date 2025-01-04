@@ -1,11 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const   getAllPhotos = require("../Controllers/photoController");
+
+const  { getAllPhotos,getPriorityScore} = require("../Controllers/photoController");
+
 const multer = require("multer");
 const photoModel = require("../Models/photo");
+
 // Route to add a photo
 router.get('/findall', getAllPhotos)
 const path = require('path');
+
 // Set up multer to store images in the 'assets' folder
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -59,4 +63,7 @@ router.post('/upload-photo', upload.single('image'), async (req, res) => {
     });
   }
 });
+
+router.post('/priority-score', getPriorityScore);
+
 module.exports = router;

@@ -18,7 +18,16 @@ const photoSchema = new mongoose.Schema(
         },
         latitude:{
             type: String
-        }
+        },
+        status: {
+            type: String,
+            enum: ["reported", "in-progress", "resolved"],
+            default: "reported",
+        },
+        severity: {
+            type: Number,
+            default:0,
+        },
     }
 )
 const photoModel = mongoose.model("photo", photoSchema);
