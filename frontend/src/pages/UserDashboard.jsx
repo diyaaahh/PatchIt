@@ -1,8 +1,10 @@
 import { withAuthenticationRequired } from '@auth0/auth0-react';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
 const UserDashboard = () => {
+    const navigate = useNavigate();
     const [reports] = useState([
       {
         id: 1,
@@ -21,13 +23,18 @@ const UserDashboard = () => {
         reportedBy: 'Jane Smith'
       }
     ]);
+
+    const handleReportSubmit = () => {
+        navigate('/home')
+    }
   
     return (
       <div className="min-h-screen overflow-auto bg-gradient-to-br from-blue-50 to-purple-50 p-6">
   
         <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="p-6">
+          <div className="p-6 flex flex-row justify-between">
             <h2 className="text-2xl font-bold text-blue-600">Active Reports</h2>
+            <button className='text-sm font-bold text-gray-500' onClick={handleReportSubmit}>Report Pothole</button>
           </div>
           
           <div className="px-6 pb-6">
@@ -38,7 +45,7 @@ const UserDashboard = () => {
                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Date</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Location</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Details</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Description</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Reported By</th>
                   </tr>
                 </thead>
