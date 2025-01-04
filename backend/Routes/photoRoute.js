@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
+
+const {getAllPhotos,getPriorityScore, getPendingReports, getResolvedReports, updateToInProgress, updateToResolved} = require("../Controllers/photoController");
+const {calculateDistance} = require('../Utils/helper.js')
+
 const multer = require("multer");
 const path = require('path');
 const fs = require('fs');
 const photoModel = require("../Models/photo");
-const {calculateDistance} = require('../Utils/helper.js');
-const {getAllPhotos, getPriorityScore, getPendingReports, getResolvedReports} = require("../Controllers/photoController");
 
 router.get('/findall', getAllPhotos);
 
@@ -55,8 +57,17 @@ router.post('/upload-photo', upload.single('image'), async (req, res) => {
                 throw new Error(`Python server responded with status: ${response.status}`);
             }
 
+
             const data = await response.json();
             console.log(data);
+
+        if (distance <= 15) {
+            if (photo.status === 'reported') {
+                // Increment the no_of_reports and update the timestamp
+                photo.no_of_reports += 1;
+                photo.timeStamp.push(new Date());
+                await photo.save();
+                
 
             // If no pothole detected, delete the uploaded image and return early
             if (!data.pothole_detected) {
@@ -165,5 +176,6 @@ router.post('/upload-photo', upload.single('image'), async (req, res) => {
 router.post('/priority-score', getPriorityScore);
 router.get('/reported', getPendingReports);
 router.get('/resolved', getResolvedReports);
-
+router.post('/in-progress', updateToInProgress);
+router.post('/updatetoresolved', updateToResolved);
 module.exports = router;
