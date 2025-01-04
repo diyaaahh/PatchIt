@@ -1,4 +1,8 @@
 const router = require("express").Router();
+const multer = require('multer');
+
+const photoModel = require("../Models/photo");
+
 const weights = require("../Constants/constants");
 const axios = require("axios");
 
@@ -6,41 +10,6 @@ const photoModel = require("../Models/photo");
 
 const {calculatePriorityScore,normalizeScore,calculateDistance} = require('../Utils/helper');
 
-// Controller to add a photo
-const addPhoto = async (req, res) => {
-    try {
-        const { userId, photoUrl, comment, longitude, latitude } = req.body;
-
-        // Validate required fields
-        if (!userId || !photoUrl) {
-            return res.status(400).json({ error: "userId and photoUrl are required." });
-        }
-
-        // Create a new photo document
-        const newPhoto = new photoModel({
-            userId,
-            photoUrl,
-            comment: comment || "", // Optional field
-            longitude: longitude || "", // Optional field
-            latitude: latitude || "", // Optional field
-        });
-
-        // Save to database
-        const savedPhoto = await newPhoto.save();
-
-        // Respond with success
-        res.status(201).json({
-            message: "Photo added successfully.",
-            photo: savedPhoto,
-        });
-    } catch (error) {
-        console.error("Error adding photo:", error);
-        res.status(500).json({
-            error: "Internal server error.",
-            details: error.message,
-        });
-    }
-};
 
 const getAllPhotos = async (req, res) => {
     try {
@@ -65,6 +34,7 @@ const getAllPhotos = async (req, res) => {
     }
 };
 
+module.exports =    getAllPhotos;
 
 const fetchOverpassData = async (query) => {
     try {
