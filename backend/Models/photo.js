@@ -5,7 +5,7 @@ const photoSchema = new mongoose.Schema(
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "users",
-            required: true,
+            default: null
           },
         photoUrl: {
             type: String
