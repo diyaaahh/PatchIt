@@ -28,6 +28,14 @@ const photoSchema = new mongoose.Schema(
             type: Number,
             default:0,
         },
+        timeStamp:{
+            type: [Date],
+            default:null
+        },
+        no_of_reports:{
+            type: Number,
+            default:0
+        }
     }
 )
 const photoModel = mongoose.model("photo", photoSchema);
