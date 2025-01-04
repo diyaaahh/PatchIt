@@ -1,11 +1,15 @@
 const express = require("express");
 const router = express.Router();
+
+const { addPhoto , getAllPhotos,getPriorityScore,calculatePriorityScoreInternal, getPendingReports, getResolvedReports, updateToInProgress, updateToResolved, getPlaceName, getAddress, getInProgressReports} = require("../Controllers/photoController");
+
+
 const multer = require("multer");
 const path = require('path');
 const fs = require('fs');
 const photoModel = require("../Models/photo");
 const {calculateDistance} = require('../Utils/helper.js');
-const {getAllPhotos, getPriorityScore, calculatePriorityScoreInternal,getPendingReports, getResolvedReports} = require("../Controllers/photoController");
+
 
 router.get('/findall', getAllPhotos);
 
@@ -168,5 +172,8 @@ router.post('/upload-photo', upload.single('image'), async (req, res) => {
 router.post('/priority-score', getPriorityScore);
 router.get('/reported', getPendingReports);
 router.get('/resolved', getResolvedReports);
-
+router.get('/getInProgress', getInProgressReports);
+router.post('/in-progress', updateToInProgress);
+router.post('/updatetoresolved', updateToResolved);
+router.get('/getAddress', getAddress);
 module.exports = router;

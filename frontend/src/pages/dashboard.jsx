@@ -1,11 +1,14 @@
+import { useAuth0 } from '@auth0/auth0-react'
+import React,{useState} from 'react'
+import Sidebar from '../components/sideBar'
+import ReportedPothole from './reportedPothole'
+import Analytics from '../flaskpages/analytics'
+import LiveStream from '../flaskpages/cameraPage'
+import InprogressPothole from './inprogressReport'
+import CompletePothole from './completeReport'
 import { withAuthenticationRequired } from '@auth0/auth0-react';
-import React, { useState } from 'react';
-import Sidebar from '../components/sideBar';
-import ReportedPothole from './reportedPothole';
-import Analytics from '../flaskpages/analytics';
-import LiveStream from '../flaskpages/cameraPage';
 
-function Dashboard() {
+ function Dashboard() {
     const [currentView, setCurrentView] = useState('reportedReports');
 
     const handleReportedReports = () => {
@@ -17,7 +20,7 @@ function Dashboard() {
     };
 
     const handleCompletesReports = () => {
-        setCurrentView('completeReports');
+        setCurrentView('resolveddReports');
     };
 
     const handleAnalytics = () => {
@@ -33,9 +36,9 @@ function Dashboard() {
             case 'reportedReports':
                 return <ReportedPothole />;
             case 'inprogressReports':
-                return <ReportedPothole />;
-            case 'completeReports': // Fixed typo in case value
-                return <ReportedPothole />;
+                return <InprogressPothole />
+            case 'resolveddReports':
+                return <CompletePothole />
             case 'analytics':
                 return <Analytics />;
             case 'livedetection':

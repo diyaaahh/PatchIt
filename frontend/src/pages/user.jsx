@@ -9,7 +9,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
 const PotholeReporter = () => {
-  const {user,isAuthenticated} = useAuth0()
+  const { user, isAuthenticated } = useAuth0();
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const [comment, setComment] = useState('');
@@ -133,15 +133,17 @@ const PotholeReporter = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6 overflow-y-auto">
       {/* Header */}
       <header className="max-w-4xl mx-auto mb-8">
         <div className="flex items-center gap-4">
           <img
             src={user.picture}
+            
             alt={userDetail.name}
             className="w-10 h-10 rounded-full"
           />
+          
           <span className="text-lg font-semibold">Welcome, {user.name}</span>
           <span><LogoutButton/></span>
         </div>
