@@ -53,7 +53,8 @@
 # if __name__ == "__main__":
 #     app.run(debug=True, port=5000)
 
-from flask import Flask, Response, jsonify
+
+from flask import Flask, Response, request, jsonify
 from flask_cors import CORS
 import cv2
 from ultralytics import YOLO
@@ -61,21 +62,26 @@ import os
 from datetime import datetime
 
 app = Flask(__name__)
-CORS(app ,resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "*"}})
 
-# Load the YOLO model 
+# Load the YOLO model
 model = YOLO("pothole.pt")  # Replace with the correct model path
 
-SAVE_DIR = "detected_potholes"
+SAVE_DIR = "../detected_potholes"
 os.makedirs(SAVE_DIR, exist_ok=True)
 
 first_pothole_detected = False
 
 @app.route('/stream', methods=['GET'])
 def stream_video():
+    url = request.args.get('url')
+    if not url:
+        return jsonify({"error": "No URL provided"}), 400
+    if (url == "0"):
+        url = int(url)
     def generate_frames():
         global first_pothole_detected
-        cap = cv2.VideoCapture("http://172.16.0.14:8080/video")  # Replace with the actual stream URL
+        cap = cv2.VideoCapture(url)
 
         if not cap.isOpened():
             yield (b'--frame\r\n'
@@ -128,6 +134,7 @@ def reset_detection():
     first_pothole_detected = False
     return jsonify({"message": "Pothole detection reset."}), 200
 
+
 @app.after_request
 def add_headers(response):
     response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
@@ -135,5 +142,6 @@ def add_headers(response):
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     return response
 
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0",debug=True, port=3000)
+    app.run(host="0.0.0.0", debug=True, port=3000)
