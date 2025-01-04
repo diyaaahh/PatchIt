@@ -66,7 +66,7 @@ const PieChartComponent = () => (
   </div>
 );
 
-const Dashboard = () => {
+const Analytics = () => {
   return (
     <div className="min-h-screen bg-blue-50 p-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -161,4 +161,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Analytics;

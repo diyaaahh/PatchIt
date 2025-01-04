@@ -13,7 +13,7 @@ const PotholeDescriptionCard = ({
         <div className="w-1/3">
           <img 
             className="h-full w-full rounded-l-lg object-cover"
-            src="/api/placeholder/400/320"
+            src={image}
             alt="Pothole image" 
           />
         </div>
