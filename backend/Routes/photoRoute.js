@@ -3,7 +3,6 @@ const router = express.Router();
 const { addPhoto , getAllPhotos,getPriorityScore, getPendingReports, getResolvedReports, updateToInProgress, updateToResolved} = require("../Controllers/photoController");
 const {calculateDistance} = require('../Utils/helper.js')
 
-const {getAllPhotos,getPriorityScore, getPendingReports, getResolvedReports} = require("../Controllers/photoController");
 
 const multer = require("multer");
 const photoModel = require("../Models/photo");
