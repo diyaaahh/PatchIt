@@ -65,6 +65,56 @@ const getAllPhotos = async (req, res) => {
     }
 };
 
+const getPendingReports = async(req, res) =>{
+    try {
+        // Fetch all reports with status "pending"
+        const pendingReports = await photoModel.find({ status: "reported" });
+
+        if (pendingReports.length === 0) {
+            return res.status(404).json({
+                message: "No pending reports found.",
+            });
+        }
+
+        // Return the pending reports
+        res.status(200).json({
+            message: "Pending reports retrieved successfully.",
+            reports: pendingReports,
+        });
+    } catch (error) {
+        console.error("Error fetching pending reports:", error);
+        res.status(500).json({
+            error: "Internal server error.",
+            details: error.message,
+        });
+    }
+}
+
+const getResolvedReports = async(req,res) =>{
+    try {
+        // Fetch all reports with status "pending"
+        const pendingReports = await photoModel.find({ status: "resolved" });
+
+        if (pendingReports.length === 0) {
+            return res.status(404).json({
+                message: "No resolved reports found.",
+            });
+        }
+
+        // Return the pending reports
+        res.status(200).json({
+            message: "Resolved reports retrieved successfully.",
+            reports: pendingReports,
+        });
+    } catch (error) {
+        console.error("Error fetching pending reports:", error);
+        res.status(500).json({
+            error: "Internal server error.",
+            details: error.message,
+        });
+    }
+}
+
 
 const fetchOverpassData = async (query) => {
     try {
@@ -163,7 +213,10 @@ const getPriorityScore = async (req, res) => {
         console.error(error);
         res.status(500).json({ error: 'Failed to fetch data or calculate score' });
     }
+
+
+    
 };
 
 
-module.exports = { addPhoto , getAllPhotos, getPriorityScore};
+module.exports = { addPhoto , getAllPhotos, getPriorityScore, getPendingReports, getResolvedReports};
