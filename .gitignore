@@ -1,0 +1,4 @@
+flaskbackend/venv/
+flaskbackend/detected_potholes/
+flaskbackend/pothole.pt
+*.dylib
