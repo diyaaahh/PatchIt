@@ -1,9 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { addPhoto , getAllPhotos,getPriorityScore, getPendingReports, getResolvedReports} = require("../Controllers/photoController");
-
-const  { getAllPhotos,getPriorityScore} = require("../Controllers/photoController");
-
+const {getAllPhotos,getPriorityScore, getPendingReports, getResolvedReports} = require("../Controllers/photoController");
 const multer = require("multer");
 const photoModel = require("../Models/photo");
 
