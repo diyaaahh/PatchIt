@@ -96,26 +96,22 @@ const fetchOverpassData = async (query) => {
 };
 
 
-const getPriorityScore = async (req, res) => {
-    const {latitude,longitude} = req.body
+const calculatePriorityScoreInternal = async (latitude, longitude) => {
     const maxRadius = 500; // meters
-
-    console.log('Request received:', latitude, longitude);
-
+    
     const queries = {
         hospital: `[out:json];(node["amenity"="hospital"](around:${maxRadius}, ${latitude}, ${longitude});
             way["amenity"="hospital"](around:${maxRadius}, ${latitude}, ${longitude});
             relation["amenity"="hospital"](around:${maxRadius}, ${latitude}, ${longitude});
         );out center;`,
-
         highway: `[out:json];way["highway"](around:${maxRadius}, ${latitude}, ${longitude});out geom;`,
-
         school: `[out:json];(
             node["amenity"="school"](around:${maxRadius}, ${latitude}, ${longitude});
             way["amenity"="school"](around:${maxRadius}, ${latitude}, ${longitude});
             relation["amenity"="school"](around:${maxRadius}, ${latitude}, ${longitude});
-        );out center;`,
+        );out center;`
     };
+
     const weights = {
         hospital: 5,
         school: 4,
@@ -125,65 +121,61 @@ const getPriorityScore = async (req, res) => {
         residential: 2
     };
 
+    const [hospitals, highways, schools] = await Promise.all([
+        fetchOverpassData(queries.hospital),
+        fetchOverpassData(queries.highway),
+        fetchOverpassData(queries.school),
+    ]);
+
+    const features = [];
+    hospitals.forEach(hospital => {
+        if (hospital.center) {
+            const distance = calculateDistance(latitude, longitude, hospital.center.lat, hospital.center.lon);
+            features.push({ type: 'hospital', distance });
+        }
+    });
+
+    highways.forEach(highway => {
+        if (highway.center) {
+            const highwayType = highway.tags.highway;
+            const distance = calculateDistance(latitude, longitude, highway.center.lat, highway.center.lon);
+            features.push({ type: highwayType, distance });
+        }
+    });
+
+    schools.forEach(school => {
+        if (school.center) {
+            const distance = calculateDistance(latitude, longitude, school.center.lat, school.center.lon);
+            features.push({ type: 'school', distance });
+        }
+    });
+
+    const priorityScore = calculatePriorityScore(features, weights, maxRadius);
+    const minScore = 0;
+    const maxScore = 50;
+    const normalizedScore = normalizeScore(priorityScore, minScore, maxScore);
     
+    return normalizedScore;
+};
 
+const getPriorityScore = async (req, res) => {
     try {
-        const [hospitals, highways, schools] = await Promise.all([
-            fetchOverpassData(queries.hospital),
-            fetchOverpassData(queries.highway),
-            fetchOverpassData(queries.school),
-        ]);
-
-        const features = [];
-        hospitals.forEach(hospital => {
-            if (hospital.center) {
-                const distance = calculateDistance(latitude, longitude, hospital.center.lat, hospital.center.lon);
-                features.push({
-                    type: 'hospital',
-                    distance
-                });
-            }
-        });
-
-        // Process highways
-        highways.forEach(highway => {
-            if (highway.center) {
-                const highwayType = highway.tags.highway;
-                const distance = calculateDistance(latitude, longitude, highway.center.lat, highway.center.lon);
-                features.push({
-                    type: highwayType,
-                    distance
-                });
-            }
-        });
-
-        // Process schools
-        schools.forEach(school => {
-            if (school.center) {
-                const distance = calculateDistance(latitude, longitude, school.center.lat, school.center.lon);
-                features.push({
-                    type: 'school',
-                    distance
-                });
-            }
-        });
-
-        const priorityScore = calculatePriorityScore(features, weights, maxRadius);
-        console.log('Priority score:', priorityScore);
-        const minScore = 0;
-        const maxScore = 50;
-        const normalizedScore = normalizeScore(priorityScore, minScore, maxScore);
-
-        res.json({
-            normalizedScore
+        const {latitude, longitude} = req.body;
+        console.log('Request received:', latitude, longitude);
+        
+        const normalizedScore = await calculatePriorityScoreInternal(latitude, longitude);
+        console.log('Normalized score:', normalizedScore);
+        
+        res.status(200).json({
+            message: 'Priority score calculated successfully.',
+            severity: normalizedScore
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to fetch data or calculate score' });
-    };
-
-    
+    }
 };
+
 const updateToInProgress = async (req, res) => {
     try {
       const {_id } = req.body; // Extract ID from the request body
@@ -238,4 +230,4 @@ const updateToInProgress = async (req, res) => {
   };
 
 
-module.exports = { getAllPhotos, getPriorityScore, getPendingReports, getResolvedReports, updateToInProgress, updateToResolved};
+module.exports = { getAllPhotos, getPriorityScore, getPendingReports, getResolvedReports,calculatePriorityScoreInternal, updateToInProgress, updateToResolved};

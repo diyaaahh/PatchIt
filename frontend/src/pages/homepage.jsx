@@ -11,7 +11,7 @@ export default function Homepage() {
     const isAdmin  = user.email === "admin@gmail.com";
 
     return (
-        <div className="h-screen w-screen overflow-hidden">
+        <div className="h-screen w-screen ">
             <div className="h-full">
                 {
                     isAdmin ? <div className="h-full shadow-lg shadow-slate-900/20">

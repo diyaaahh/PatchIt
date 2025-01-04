@@ -46,7 +46,7 @@ function Dashboard() {
     };
 
     return (
-        <div className="h-screen w-screen overflow-hidden">
+        <div className="h-screen w-screen">
             <div className="flex h-full">
                 <div className="h-full shadow-lg shadow-slate-900/20">
                     <Sidebar

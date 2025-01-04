@@ -5,6 +5,8 @@ import potholesImage from '../assets/pothole.png';
 import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import LogoutButton from '../components/logoutButton';
+import { ToastContainer, toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const PotholeReporter = () => {
   const {user,isAuthenticated} = useAuth0()
@@ -18,6 +20,7 @@ const PotholeReporter = () => {
     name: 'xyz',
     profilePicture: potholesImage,
   });
+  const navigate = useNavigate();
 
   const webcamRef = useRef(null);
 
@@ -98,9 +101,25 @@ const PotholeReporter = () => {
 
       const data = await res.json();
       if (res.ok) {
+        toast.success('Your response has been submitted successfully!', {
+          onOpen: () => {
+            // Wait for 1.5 seconds to show the toast before navigating
+            setTimeout(() => {
+              // Reset form
+              setCapturedImage(null);
+              setComment('');
+              setLocation(null);
+              setFormattedAddress('');
+              navigate('/reports');
+            }, 1500);
+          
+          }
+        });
         console.log('Request Successful:', data);
       } else {
         console.error('Error uploading photo:', data);
+      toast.error('error submitting response');
+
       }
     } catch (error) {
       console.error('Error during image upload:', error);
@@ -220,12 +239,14 @@ const PotholeReporter = () => {
               type="submit"
               disabled={!capturedImage || !comment || !location}
               className="w-full py-3 bg-purple-600 text-white rounded-lg disabled:opacity-50"
+              onClick={handleSubmit}
             >
               Submit Report
             </button>
           </form>
         </div>
       </main>
+      <ToastContainer />
     </div>
   );
 };

@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const photoModel = require("../Models/photo");
 const {calculateDistance} = require('../Utils/helper.js');
-const {getAllPhotos, getPriorityScore, getPendingReports, getResolvedReports} = require("../Controllers/photoController");
+const {getAllPhotos, getPriorityScore, calculatePriorityScoreInternal,getPendingReports, getResolvedReports} = require("../Controllers/photoController");
 
 router.get('/findall', getAllPhotos);
 
@@ -61,17 +61,19 @@ router.post('/upload-photo', upload.single('image'), async (req, res) => {
             // If no pothole detected, delete the uploaded image and return early
             if (!data.pothole_detected) {
                 fs.unlinkSync(imagePath);
-                return res.status(200).json({
+                return res.status(400).json({
                     message: 'No pothole detected in the image.',
                     pothole_detected: false
                 });
             }
 
-            // // Only proceed with saving if pothole was detected
-            // const severityScore = getPriorityScore({'latitude':latitude,'longitude':longitude});
-            // photo.severity = severityScore;
-
-            console.log(`severity ${severityScore}`)
+            const severityScore = await calculatePriorityScoreInternal(
+                parseFloat(latitude), 
+                parseFloat(longitude)
+            );
+    
+            console.log(`severity ${severityScore}`);
+    
 
             const photoUrl = `/assets/${req.file.filename}`;
             console.log("pooothole")
@@ -122,7 +124,8 @@ router.post('/upload-photo', upload.single('image'), async (req, res) => {
                 longitude: longitude || '',
                 timeStamp: [new Date()],
                 no_of_reports: 1,
-                status: 'reported'
+                status: 'reported',
+                severity: severityScore|| 0
             });
 
             // Save the photo document to the database
